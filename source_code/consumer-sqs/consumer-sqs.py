@@ -5,16 +5,18 @@ import logging
 import boto3
 import os
 from botocore.exceptions import ClientError
-import json
-from aws_xray_sdk.core import xray_recorder
-from aws_xray_sdk.core import patch_all
-import time
+import json, time
 
-patch_all()
+#Change in Fase4
+# from aws_xray_sdk.core import xray_recorder
+# from aws_xray_sdk.core import patch_all
 
-xray_recorder.configure(service='TODOAPP-Consumer')
-#plugins = ('ElasticBeanstalkPlugin', 'EC2Plugin')
-#xray_recorder.configure(plugins=plugins)
+# patch_all()
+
+#xray_recorder.configure(service='TODOAPP-Consumer')
+
+
+#########
 
 
 
@@ -76,7 +78,7 @@ def delete_queue_message(receipt_handle):
 if __name__ == '__main__':
     while True:
         
-        xray_recorder.begin_segment("TODOAPP-Consumer")
+        #xray_recorder.begin_segment("TODOAPP-Consumer") #Change In FASE4
         messages = receive_queue_message()
         if "Messages" in messages:
             logging.info("Mensagem Recebida: \n %s " %  messages['Messages'])
@@ -100,4 +102,4 @@ if __name__ == '__main__':
                 logging.info(
                     'Received and deleted message(s) from {} with message {}.'.format(SQS_URI, resp_delete))
         time.sleep(3)
-        xray_recorder.end_segment()
+        #xray_recorder.end_segment() #Change In FASE4

@@ -11,15 +11,18 @@ from flask import request as _request
 from flask import jsonify
 import logging
 import time
-from aws_xray_sdk.core import xray_recorder, patch_all
-from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 
-patch_all()
+#Uncoment in Fase4
+# from aws_xray_sdk.core import xray_recorder, patch_all
+# from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+
+# patch_all()
 
 app = Flask(__name__)
 
-xray_recorder.configure(service='TODOAPP-Producer')
-XRayMiddleware(app, xray_recorder)
+#Uncoment in Fase4
+# xray_recorder.configure(service='TODOAPP-Producer')
+# XRayMiddleware(app, xray_recorder)
 
 SNS_ARN = json.loads(os.getenv('COPILOT_SNS_TOPIC_ARNS'))
 AWS_REGION = os.getenv("AWS_REGION")
@@ -60,8 +63,6 @@ def process():
     except:
         logging.error("Error on processing request", exc_info=True)
         return jsonify({"error": "error"}), 500
-
-patch_all()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8081, debug=True)
