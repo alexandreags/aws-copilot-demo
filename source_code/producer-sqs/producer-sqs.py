@@ -12,7 +12,7 @@ from flask import jsonify
 import logging
 import time
 
-#Uncoment in Fase4
+#Uncoment in FASE9
 # from aws_xray_sdk.core import xray_recorder, patch_all
 # from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 
@@ -20,7 +20,7 @@ import time
 
 app = Flask(__name__)
 
-#Uncoment in Fase4
+#Uncoment in FASE9
 # xray_recorder.configure(service='TODOAPP-Producer')
 # XRayMiddleware(app, xray_recorder)
 

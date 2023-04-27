@@ -7,7 +7,7 @@ import os
 from botocore.exceptions import ClientError
 import json, time
 
-#Change in Fase4
+#Change in Fase9
 # from aws_xray_sdk.core import xray_recorder
 # from aws_xray_sdk.core import patch_all
 
@@ -78,7 +78,7 @@ def delete_queue_message(receipt_handle):
 if __name__ == '__main__':
     while True:
         
-        #xray_recorder.begin_segment("TODOAPP-Consumer") #Change In FASE4
+        #xray_recorder.begin_segment("TODOAPP-Consumer") #Uncoment In FASE9
         messages = receive_queue_message()
         if "Messages" in messages:
             logging.info("Mensagem Recebida: \n %s " %  messages['Messages'])
@@ -102,4 +102,4 @@ if __name__ == '__main__':
                 logging.info(
                     'Received and deleted message(s) from {} with message {}.'.format(SQS_URI, resp_delete))
         time.sleep(3)
-        #xray_recorder.end_segment() #Change In FASE4
+        #xray_recorder.end_segment() #Uncoment In FASE9

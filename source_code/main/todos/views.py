@@ -2,10 +2,12 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpRequest
 from .models import Todo
 import requests, uuid, os
-from aws_xray_sdk.core import xray_recorder
-from aws_xray_sdk.core import patch_all
 
-patch_all()
+#Uncoment in step 9
+# from aws_xray_sdk.core import xray_recorder
+# from aws_xray_sdk.core import patch_all
+
+# patch_all()
 
 
 # Create your views here.
@@ -20,18 +22,20 @@ def insert_todo_item(request:HttpRequest):
     # Send post to PUB Service
     #curl -X POST  <URL_ENDPOINT>/api/pub -d '{"text":"# Hello World"}' --header "Content-type: application/json"
     print('Todo Content in request: %s' % request.POST['content'] )
+    
+    
     #To reach the "api" service behind the internal load balancer
-    endpoint = f"http://producer-sqs.%s.%s.internal/api/pub" % (os.environ.get("COPILOT_ENVIRONMENT_NAME"), os.environ.get("COPILOT_APPLICATION_NAME"))
-    data = {
-    "id": str(uuid.uuid4()),
-    "text": str(request.POST['content'])
-    }
-    response = requests.post(endpoint, json=data)
+    # endpoint = f"http://producer-sqs.%s.%s.internal/api/pub" % (os.environ.get("COPILOT_ENVIRONMENT_NAME"), os.environ.get("COPILOT_APPLICATION_NAME"))
+    # data = {
+    # "id": str(uuid.uuid4()),
+    # "text": str(request.POST['content'])
+    # }
+    # response = requests.post(endpoint, json=data)
     
-    print('Todo Content json data %s' % data )
+    # print('Todo Content json data %s' % data )
     
-    print("Status Code", response.status_code)
-    print("JSON Response ", response.json())
+    # print("Status Code", response.status_code)
+    # print("JSON Response ", response.json())
     
     return redirect('/todos/list')
     

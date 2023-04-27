@@ -40,11 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'todos',
     'health_check',
-    #'aws_xray_sdk.ext.django', #Uncoment In FASE4
+    #'aws_xray_sdk.ext.django', #Uncoment In FASE9
 ]
 
 MIDDLEWARE = [
-    #'aws_xray_sdk.ext.django.middleware.XRayMiddleware', # precisa ser o primeiro #Uncoment In FASE4
+    #'aws_xray_sdk.ext.django.middleware.XRayMiddleware', # precisa ser o primeiro #Uncoment In FASE9
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,7 +56,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'todoapp.urls'
 
-XRAY_RECORDER = { #Uncoment In FASE4
+XRAY_RECORDER = { #Uncoment In FASE9
     #'AWS_XRAY_TRACING_NAME': 'TODOAPP-Main', # the segment name for segments generated from incoming requests
     #'AWS_XRAY_DAEMON_ADDRESS': 'localhost:2000'	
 
