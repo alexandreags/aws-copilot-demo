@@ -40,11 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'todos',
     'health_check',
-    'aws_xray_sdk.ext.django',
+    #'aws_xray_sdk.ext.django', #Uncoment In FASE4
 ]
 
 MIDDLEWARE = [
-    'aws_xray_sdk.ext.django.middleware.XRayMiddleware', # precisa ser o primeiro
+    #'aws_xray_sdk.ext.django.middleware.XRayMiddleware', # precisa ser o primeiro #Uncoment In FASE4
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,9 +56,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'todoapp.urls'
 
-XRAY_RECORDER = {
-    'AWS_XRAY_TRACING_NAME': 'TODOAPP-Main', # the segment name for segments generated from incoming requests
-    'AWS_XRAY_DAEMON_ADDRESS': 'localhost:2000'	
+XRAY_RECORDER = { #Uncoment In FASE4
+    #'AWS_XRAY_TRACING_NAME': 'TODOAPP-Main', # the segment name for segments generated from incoming requests
+    #'AWS_XRAY_DAEMON_ADDRESS': 'localhost:2000'	
 
 }
 TEMPLATES = [
@@ -78,21 +78,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'todoapp.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('POSTGRES_NAME') or 'postgres',
-#         'USER': os.environ.get('POSTGRES_USER') or 'postgres',
-#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD') or 'postgres',
-#         'HOST': os.environ.get('POSTGRES_HOST') if os.environ.get('AMBIENTE')=='PROD' else 'postgres', # docker run --name postgres -e "POSTGRES_PASSWORD=Postgres2023" -p 5432:5432 -v /tmp/PostgreSQL:/var/lib/postgresql/data --network=todoapp -d postgres
-#         'PORT': 5432,
-#     }
-# }
 
 DBINFO = json.loads(os.environ.get('TODOAPPDB_SECRET', '{}'))
 DATABASES = {
