@@ -25,7 +25,7 @@ def insert_todo_item(request:HttpRequest):
     
     
     #To reach the "api" service behind the internal load balancer
-    # endpoint = f"http://producer-sqs.%s.%s.internal/api/pub" % (os.environ.get("COPILOT_ENVIRONMENT_NAME"), os.environ.get("COPILOT_APPLICATION_NAME"))
+    # endpoint = f"http://producer-<REGION>-sqs.%s.%s.internal/api/pub" % (os.environ.get("COPILOT_ENVIRONMENT_NAME"), os.environ.get("COPILOT_APPLICATION_NAME"))
     # data = {
     # "id": str(uuid.uuid4()),
     # "text": str(request.POST['content'])
