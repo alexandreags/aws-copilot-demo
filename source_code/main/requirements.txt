@@ -1,0 +1,11 @@
+Django
+environs
+psycopg2
+django-health-check
+aws-xray-sdk
+tox
+opentelemetry-distro
+opentelemetry-exporter-otlp
+opentelemetry-distro[otlp]
+opentelemetry-sdk-extension-aws
+opentelemetry-propagator-aws-xray
