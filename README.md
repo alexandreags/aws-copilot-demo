@@ -1,51 +1,74 @@
+
 # aws-copilot-demo
-Demo do funcionamento do AWS Copilot
+## Demo do funcionamento do AWS Copilot
 
-Requisitos:
-    - AWS CLI V2 ( https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 
-    - Copilot CLI
-    - Docker (Ex: sudo yum install docker)
-    - AWS Permissions (Temp creds ou Instance Role)
+### Requisitos:
+- AWS CLI V2 ( https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) 
+- Copilot CLI (https://aws.github.io/copilot-cli/docs/getting-started/install/)
+- Docker
+- AWS Permissions (Temp creds ou Instance Role)
 
-1 - Install Copilot CLI
-    - https://aws.github.io/copilot-cli/docs/getting-started/install/
+### Step 1 - Clone the repo
 
-2 -Initialize APP
-    - From the root folder od the repository:
-    - set current region = REGION=$(aws ec2 describe-availability-zones --output text --query 'AvailabilityZones[0].[RegionName]')
-    - copilot init --app todoapp-$REGION --dockerfile source_code/main/Dockerfile --name todoapp-$REGION-main --type  "Load Balanced Web Service"
-    - When Copilot asks to deploy into a test environment, choose N.
-    From there, copilot created:
-    - Infrastructure for stack infrastructure-roles
+````
+git clone https://github.com/alexandreags/aws-copilot-demo.git
+````
+
+### 2 -Initialize APP
+  - Goto Root folder cloned from repository:
+````
+cd aws-copilot-demo
+````
+- Use copilot to nitialize the main app 
+```
+copilot init --app todoapp-main --dockerfile source_code/main/Dockerfile --name todoapp-main --type  "Load Balanced Web Service"
+```
+  - When Copilot asks to deploy into a test environment, choose N.
+  - From there, copilot created:
+    - Cloudformation for stack infrastructure-roles
     - A StackSet admin role assumed by CloudFormation to manage regional stacks
     - An IAM role assumed by the admin role to create ECR repositories, KMS keys, and S3 buckets
-    - The directory copilot will hold service manifests for application todoapp-sa-east-1.
-    - Wrote the manifest for service todoapp at copilot/<name>/manifest.yml
-    - Update regional resources with stack set "<app-name>"
-    FOLDER Structure:
-    .
-    ├── copilot
-    │   └── <app-name>
-    │       └── manifest.yml
-    ├── LICENSE
-    ├── README.md
-    └── source_code
-3 - Configure APP Paths
-    - In copilot/<app-name>/manifest.yaml edit the http directive:
+    - The directory copilot will hold service manifests for application created.
+    - The manifest for service todoapp at **copilot/todoapp-main/manifest.yml**
+    - Update regional resources with stack set **"todoapp-main"**
+    - Folder Structure:
+
+├── copilot
+	│   └── todoapp-main
+	│      └── manifest.yml
+	├── LICENSE
+	├── README.md
+	└── source_code
+    
+### 3 - Configure APP Paths
+   - In copilot/todoapp-main/manifest.yaml edit the http directive:
+
     http:
       # Requests to this path will be forwarded to your service.
-      path: '/'
+      path: '/' #the main path of the Application
       # You can specify a custom health check path. The default is "/".
       healthcheck:
-        path: '/health_check'
+        path: '/health_check' # Path for healtch in ALB
         success_codes: '200,301'
-4 - Initialize Staging Environment
-    - copilot env init --name staging --default-config --profile default
-    - Copilot will create a manifest with default settings in copilot/environments/staging/manifest.yml
-    - You can use existing VPCs or ALB. In this case will use the default (Copilot will create for us.)
-5 - Deploy Staging Environment
-    - copilot env deploy --name staging
-    - Copilot will create VPC, Subnets and Cluster for deployment    
+
+### 4 - Initialize Staging Environment: 
+Environments contains all the AWS resources to provision a secure network (VPC, subnets, security groups, and more), as well as other resources that are meant to be shared between multiple services like an Application Load Balancer or an ECS Cluster. For example, when you deploy your service into a _test_ environment, your service will use the _test_ environment's network and resources. Your application can have multiple environments, and each will have its own networking and shared resources infrastructure.
+In thist demo we will use 2 environments: staging and production.
+```
+copilot env init --name staging --default-config --profile default 
+```
+```
+copilot env init --name production --default-config --profile default 
+```
+- Copilot will create a manifest with default settings in **copilot/environments/staging/manifest.yml** and **copilot/environments/production/manifest.yml**
+- You can import existing VPCs or ALB in manifest configuration. In this case will use the default setting (Copilot will create everything for us.)
+- Note that copilot just created manifests files and basic roles permissions, but not created the resources yet.
+### 5 - Deploy Staging Environment
+```    
+copilot env deploy --name staging
+```
+- Copilot will create VPC, Subnets and Cluster for deployment    
+
 6 - Create Database for app:
     - If you look at source_code/todoapp/settings.py, the code contains a section to connect to a Database:
         DBINFO = json.loads(os.environ.get('TODOAPPDB_SECRET', '{}'))
@@ -67,6 +90,7 @@ Requisitos:
     - Environment variable TODOAPPDB_SECRET
 7 Deploy Everything!
     - Now we can deploy all resources (Services, Databases, Docker Images, ECR Repository, Etc.)
+    - copilot deploy --name todoapp-us-east-1-main
     - The process take about 10 min to complete.
     - After the process complete, copilot will show you the url of the Loadbalancer Service:
         - You can access your service at http://<ALB Address> over the internet.
@@ -107,8 +131,8 @@ Requisitos:
           tries: 5
     - We are instructing the consumer service do access the Queue from the producer service.
     - Deploy the new services:
-    - copilot svc deploy --name consumer-$REGION-sqs --env staging
     - copilot svc deploy --name producer-$REGION-sqs --env staging
+    - copilot svc deploy --name consumer-$REGION-sqs --env staging
     - With the services deployed, uncomment the section that calls the producer http service and redeploy the main service
     - copilot svc deploy --name todoapp-$REGION-main --env staging
     - Check DynamoDB for inserts
