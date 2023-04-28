@@ -80,7 +80,7 @@ Requisitos:
     - copilot svc init --name consumer-$REGION-sqs --svc-type "Worker Service" --dockerfile source_code/consumer-sqs/Dockerfile
     - Now, we will create a DynamoDB Table to consumer store results:
     - copilot storage init -t DynamoDB -n todoapp-table --partition-key ID:S --no-lsi --no-sort -w consumer-$REGION-sqs
-    - Edit the manifest: copilot/producer-<REGION>-sqs/manifest.xml:
+    - Edit the manifest: copilot/producer-<REGION>-sqs/manifest.yml:
     # Distribute traffic to your service.
         http:
           # Requests to this path will be forwarded to your service.
@@ -97,7 +97,7 @@ Requisitos:
       connect: true # Enable Service Connect for intra-environment traffic between services.
       vpc:
         placement: private
-    - Edit the file copilot/consumer-<REGION>-sqs/manifest.xml:
+    - Edit the file copilot/consumer-<REGION>-sqs/manifest.yml:
     subscribe:
       topics:
         - name: todoapp-topic
@@ -108,4 +108,47 @@ Requisitos:
     - We are instructing the consumer service do access the Queue from the producer service.
     - Deploy the new services:
     - copilot svc deploy --name consumer-$REGION-sqs --env staging
-    
+    - copilot svc deploy --name producer-$REGION-sqs --env staging
+    - With the services deployed, uncomment the section that calls the producer http service and redeploy the main service
+    - copilot svc deploy --name todoapp-$REGION-main --env staging
+    - Check DynamoDB for inserts
+
+9 Monitoring with Xray and Container Insights
+    - Now we enable application monitoring in all of your services to monitor the application and gather metrics.
+    - In copilot/environments/staging/manifest.yml, change the observability setting to enble container insights:
+        observability:
+          container_insights: true
+    - Edit the 3 manifest files from each service in copilot folder: (copilot/<appname>/manifest.yml)
+      sidecars:
+        xray:
+          port: 2000
+          image: public.ecr.aws/xray/aws-xray-daemon:latest
+    - This enable xray sidecar within container.
+    - You need to add aditional permissions to service to publish metrics to xray. For each copilot/<appname>, create a folder named addons (if not exist).
+    - Create a file named iam.yml with the folloing configuration:
+      Resources:
+        XrayWritePolicy:
+          Type: AWS::IAM::ManagedPolicy
+          Properties:
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Sid: CopyOfAWSXRayDaemonWriteAccess
+                  Effect: Allow
+                  Action:
+                    - xray:PutTraceSegments
+                    - xray:PutTelemetryRecords
+                    - xray:GetSamplingRules
+                    - xray:GetSamplingTargets
+                    - xray:GetSamplingStatisticSummaries
+                  Resource: "*"
+      
+      Outputs:
+        XrayAccessPolicyArn:
+          Description: "The ARN of the ManagedPolicy to attach to the task role."
+          Value: !Ref XrayWritePolicy
+    - Uncoment the sections that calls the xray daemon
+    - Redeploy All Services:
+    - copilot svc deploy --name todoapp-$REGION-main --env staging && copilot svc deploy --name producer-$REGION-sqs --env staging %% copilot svc deploy --name consumer-$REGION-sqs --env staging          
+    - Generate some random post data
+    - Check X-RAY Service MAP
